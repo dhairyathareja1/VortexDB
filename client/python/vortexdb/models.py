@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, List
-from vortexdb.grpc import vector_db_pb2
+from numbers import Real
+from typing import Any
 
+from vortexdb.grpc import vector_db_pb2
 
 # I found this to be a good idea, because
 # 1. readability
@@ -45,7 +46,7 @@ class ContentType(Enum):
 
 @dataclass(frozen=True)
 class DenseVector:
-    values: List[float]
+    values: list[float]
 
     def __post_init__(self):
         if isinstance(self.values, (list, tuple)):
@@ -60,7 +61,7 @@ class DenseVector:
             raise ValueError("DenseVector expects a one-dimensional vector")
 
         for v in normalized_values:
-            if not isinstance(v, (int, float)):
+            if not isinstance(v, Real):
                 raise TypeError("DenseVector values must be numeric (int or float)")
 
         object.__setattr__(self, "values", [float(v) for v in normalized_values])
