@@ -1,14 +1,15 @@
+from dataclasses import FrozenInstanceError
+
 import pytest
 
+from vortexdb.grpc import vector_db_pb2
 from vortexdb.models import (
+    ContentType,
     DenseVector,
     Payload,
     Point,
     Similarity,
-    ContentType,
 )
-
-from vortexdb.grpc import vector_db_pb2
 
 # DenseVector Tests
 
@@ -29,6 +30,13 @@ def test_dense_vector_accepts_numpy_array():
     numpy = pytest.importorskip("numpy")
     v = DenseVector(numpy.array([1, 2.5, 3], dtype=numpy.float32))
     assert v.values == [1.0, 2.5, 3.0]
+
+
+def test_dense_vector_accepts_numpy_scalars_in_list():
+    numpy = pytest.importorskip("numpy")
+    v = DenseVector([numpy.float32(1.5), numpy.float32(2.5)])
+    assert v.values == [1.5, 2.5]
+    assert all(type(value) is float for value in v.values)
 
 
 def test_dense_vector_accepts_pytorch_tensor():
@@ -135,7 +143,7 @@ def test_dense_vector_rejects_multidimensional_tensor_like_value():
 
 def test_dense_vector_is_frozen():
     v = DenseVector([1, 2, 3])
-    with pytest.raises(Exception):
+    with pytest.raises(FrozenInstanceError):
         v.values = [4, 5, 6]
 
 
